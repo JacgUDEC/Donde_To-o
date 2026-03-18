@@ -1,3 +1,5 @@
+import datetime as dt
+
 class Pedido:
     def __init__(self, mesa, producto, cantidad, precio):
         self.mesa=mesa
@@ -18,9 +20,11 @@ class Pedido:
         print(f"Total | {self.calcular_total()}")
 
 class Mesa:
+    def __init__(self, numero):
+        self.numero=numero
+        self.pedidos=[]
     def agregar_pedido(self, pedido):
-        pedidos=[]
-        pedidos.append(pedido)
+        self.pedidos.append(pedido)
     def total_mesa(self):
         total=0
         for pedido in self.pedidos:
@@ -45,4 +49,36 @@ class Mesa:
         print(f"TOTAL: ${self.total_mesa()}")
     
 class Producto:
-    def mostrar():
+    def __init__(self, nombre, precio, categoria):
+        self.nombre=nombre
+        self.precio=precio
+        self.categoria=categoria
+    def mostrar(self):
+        print(f"{self.nombre} ${self.precio} ({self.categoria})")
+    def aplicar_descuento(self):
+        print("---Menu descuentos---")
+        print("1. Dia de las Madres\n2. Cumpleaños\n3. Cliente 1000\n")
+        desc=input("> ")
+        if desc == "1":
+            nuevoprecio=0
+            nuevoprecio=self.precio-((25/100)*self.precio)
+            self.precio=nuevoprecio
+        elif desc == "2":
+            nuevoprecio=0
+            nuevoprecio=self.precio-((50/100)*self.precio)
+            self.precio=nuevoprecio
+        elif desc == "3":
+            nuevoprecio=0
+            nuevoprecio=self.precio-((90/100)*self.precio)
+            self.precio=nuevoprecio
+        else:
+            print("Descuento no valido")
+
+class ColaPedidos:
+    def __init__(self):
+        self.cola=[]
+        self.PRIORIDADES={}
+    def encolar(self, pedido):
+        self.cola.append(pedido)
+    def procesar_siguiente(tiempo):
+        dt.timedelta(tiempo)
