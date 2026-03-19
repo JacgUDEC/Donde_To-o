@@ -11,9 +11,9 @@ class Pedido:
         return self.producto.precio * self.cantidad
 
     def ticket_cocina(self):
-        print("---Ticket Cocina---")
-        print(f"Mesa | {self.mesa}")
-        print(f"Producto | {self.producto.nombre} | {self.cantidad}")
+        print("\n---Ticket Cocina---\n")
+        print(f"Mesa N° {self.mesa}")
+        print(f"Producto: {self.producto.nombre}  x{self.cantidad}")
 
     def ticket_caja(self):
         print("---Ticket caja---")
@@ -37,17 +37,17 @@ class Mesa:
         print("Pedidos: ")
 
         for pedido in self.pedidos:
-            print(f"{pedido.cantidad} x {pedido.producto} - {pedido.calcular_total()}")
+            print(f"{pedido.cantidad} x {pedido.producto.nombre} - {pedido.calcular_total()}")
 
         print(f"Total actual: {self.total_mesa()}")
     def ticket_total(self):
-        print("---Ticket total---")
-        print(f"Mesa N°{self.numero}")
+        print("\n---Ticket total---")
+        print(f"\nMesa N° {self.numero}\n")
 
         for pedido in self.pedidos:
-            print(f"{pedido.producto} x{pedido.cantidad} - ${pedido.calcular_total()}")
+            print(f"{pedido.producto.nombre} x{pedido.cantidad} - ${pedido.calcular_total()}")
 
-        print("------------------")
+        print("\n------------------")
         print(f"TOTAL: ${self.total_mesa()}")
     
 class Producto:
@@ -58,7 +58,7 @@ class Producto:
     def mostrar(self):
         print(f"{self.nombre} ${self.precio} ({self.categoria})")
     def aplicar_descuento(self):
-        print("---Menu descuentos---")
+        print("\n📉---Menu descuentos---📉\n")
         print("1. Dia de las Madres\n2. Cumpleaños\n3. Cliente 1000\n")
         desc=input("> ")
         if desc == "1":
@@ -74,7 +74,7 @@ class Producto:
             nuevoprecio=self.precio-((90/100)*self.precio)
             self.precio=nuevoprecio
         else:
-            print("Descuento no valido")
+            print("Descuento no valido ❗")
 
 class ColaPedidos:
 
@@ -98,20 +98,20 @@ class ColaPedidos:
         self.cola.insert(pos, entrada)
     def procesar_siguiente(self):
         if not self.cola:
-            print("No hay pedidos en cola")
+            print("\nNo hay pedidos en cola ☑️")
         else:
             prio, hora, pedido = self.cola.pop(0)
-            print(f"Procesando el pedido {pedido.producto.nombre} con prioridad {prio} en la hora {hora.strftime('%H:%M:%S')}")
+            print(f"\nProcesando ({pedido.producto.nombre}) x{pedido.cantidad} | hora: {hora.strftime('%H:%M:%S')}")
             pedido.ticket_cocina()
             return pedido
     def ver_cola(self):
         if not self.cola:
-            print("NO HAY COLA")
+            print("\nNo hay cola ☑️")
         else:
-            print("----COLA PEDIDOS----")
+            print("\n----COLA PEDIDOS----\n")
             for i, (p, hora, ped) in enumerate(self.cola, 1):
                 e= ["INMEDIATO","MEDIA","BAJA"][p-1]
-                print(f"{i}. [{e}] Mesa {ped.mesa} ({hora.strftime('%H:%M:%S')}): {ped.producto.nombre}")
+                print(f"{i}. [{e}] Mesa {ped.mesa} ({hora.strftime('%H:%M:%S')}): {ped.producto.nombre} x{ped.cantidad}")
     def estadisticas(self):
         """Cuenta pedidos por producto en cola"""
         
@@ -123,7 +123,7 @@ class ColaPedidos:
         print("\n PEDIDOS EN COLA:")
         
         if not conteo:
-            print("No hay pedidos")
+            print("No hay pedidos ❗")
             return
 
         for prod, cant in conteo.items():
@@ -132,7 +132,10 @@ class ColaPedidos:
 #Adaptacion a la actividad en el CMAD
 
 def guardar_datos():
-    data = {}
+    data = {
+        "mesas": {},
+        "cola": []
+    }
 
     for num, mesa in mesas.items():
         data[num] = []
@@ -143,7 +146,16 @@ def guardar_datos():
                 "categoria": p.producto.categoria,
                 "cantidad": p.cantidad
             })
-
+    for prio, hora, p in cola.cola:
+        data["cola"].append({
+            "mesa": p.mesa,
+            "producto": p.producto.nombre,
+            "precio": p.producto.precio,
+            "categoria": p.producto.categoria,
+            "cantidad": p.cantidad,
+            "hora": hora.strftime("%H:%M:%S"),
+            "prioridad": prio
+            })
     with open("mesas.json", "w") as f:
         json.dump(data, f)
 
@@ -162,6 +174,14 @@ def cargar_datos():
                     mesa.agregar_pedido(pedido)
 
                 mesas[int(num)] = mesa
+            for item in data["cola"]:
+                prod = Producto(item["producto"], item["precio"], item["categoria"])
+                pedido = Pedido(item["mesa"], prod, item["cantidad"])
+
+                # recrear fecha (no exacta pero funcional)
+                ahora = datetime.now()
+
+                cola.cola.append((item["prioridad"], ahora, pedido))
     except:
         pass
 
@@ -172,15 +192,15 @@ mesas={}
 cargar_datos()
 
 def menu():
-    print("----Donde Toño----")
-    print("1. Crear Pedido\n2. Ver cola de la cocina\n3. Procesar el pedido\n4. Ver cuenta de la mesa\n5. Salir\n")
+    print("\n🍴---Donde Toño---🍴\n")
+    print("1. Crear Pedido\n2. Ver cola de la cocina\n3. Procesar el pedido\n4. Ver cuenta de la mesa\n5. Cerrar una mesa\n6. Salir\n")
 
 def menuped():
-    print("----Menu----")
+    print("\n📋---Menu---📋\n")
     print("1. Salchipapa | $5000\n2. Coca Cola | $2000\n3. Pizza | $20000\n4. Papa rellena | $2000\n5. Lasaña | $15000\n")
     opcped=input("> ")
 
-    mesa=int(input("Numero de mesa: "))
+    mesa=int(input("\nNumero de mesa: "))
     cantidad=int(input("Cantidad: "))
 
     if opcped == "1":
@@ -194,9 +214,9 @@ def menuped():
     elif opcped == "5":
         producto = Producto("Lasaña", 15000, "Comida")
     else:
-        print("Opcion no valida!")
+        print("Opcion no valida ❗")
         
-    print("¿Aplicar descuento? (s/n)")
+    print("\n¿Aplicar descuento? (s/n)")
     desc = input("> ")
 
     if desc.lower() == "s":
@@ -220,22 +240,38 @@ while True:
     opc=input("> ")
     if opc == "1":
         menuped()
-        print("Pedido Almacenado!")
+        print("\nPedido Almacenado ☑️")
+        input("Pulse enter para continuar... ➡️")
     elif opc == "2":
         cola.ver_cola()
+        input("\nPulse enter para continuar... ➡️")
     elif opc == "3":
         cola.procesar_siguiente()
+        input("\nPulse enter para continuar... ➡️")
     elif opc == "4":
 
-        num = int(input("Numero de mesa: "))
+        num = int(input("\nNumero de mesa: "))
         
         if num in mesas:
             mesas[num].ticket_total()
+            input("\nPulse enter para continuar... ➡️")
         else:
-            print("Esa mesa no tiene pedidos!")
+            print("\nEsa mesa no tiene pedidos ❗")
+            input("Pulse enter para continuar... ➡️")
     elif opc == "5":
+        m = int(input("\nMesa a cerrar: "))
+
+        if m in mesas:
+            print("\nCuenta final:")
+            mesas[m].ticket_total()
+            del mesas[m]
+            print("\nMesa cerrada ✅")
+            input("Pulse enter para continuar... ➡️")
+        else:
+            print("\nEsa mesa no existe ❗")
+    elif opc == "6":
         guardar_datos()
-        print("Cambios guardados")
+        print("Cambios guardados 📦")
         break
     else:
-        print("Opcion no valida!")
+        print("\nOpcion no valida ❗")
