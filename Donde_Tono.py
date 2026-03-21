@@ -138,9 +138,9 @@ def guardar_datos():
     }
 
     for num, mesa in mesas.items():
-        data[num] = []
+        data["mesas"][num] = []
         for p in mesa.pedidos:
-            data[num].append({
+            data["mesas"][num].append({
                 "producto": p.producto.nombre,
                 "precio": p.producto.precio,
                 "categoria": p.producto.categoria,
@@ -165,7 +165,7 @@ def cargar_datos():
         with open("mesas.json", "r") as f:
             data = json.load(f)
 
-            for num, pedidos in data.items():
+            for num, pedidos in data["mesas"].items():
                 mesa = Mesa(int(num))
 
                 for p in pedidos:
@@ -174,16 +174,18 @@ def cargar_datos():
                     mesa.agregar_pedido(pedido)
 
                 mesas[int(num)] = mesa
+
             for item in data["cola"]:
                 prod = Producto(item["producto"], item["precio"], item["categoria"])
                 pedido = Pedido(item["mesa"], prod, item["cantidad"])
 
-                # recrear fecha (no exacta pero funcional)
                 ahora = datetime.now()
 
                 cola.cola.append((item["prioridad"], ahora, pedido))
+
     except:
-        pass
+        print("No hay datos guardados aún 📂")
+    
 
 
 cola=ColaPedidos()
